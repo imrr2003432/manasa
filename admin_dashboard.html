@@ -80,6 +80,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
+        .btn-delete { background: #ef4444; padding: 8px 12px; font-size: 12px; }
         .btn:active { transform: scale(0.96); }
         .btn-excel { background: #10b981; margin-bottom: 15px; width: 100%; }
 
@@ -91,7 +92,6 @@
             margin-bottom: 10px;
         }
 
-        /* تعديلات الموبايل */
         @media (max-width: 768px) {
             .sidebar { width: 100%; height: 70px; bottom: 0; top: auto; display: flex; align-items: center; justify-content: space-around; padding: 10px; }
             .sidebar h2 { display: none; }
@@ -137,7 +137,7 @@
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="lecTable">
-                        <thead><tr><th>العنوان</th><th>الفصل</th><th>الرابط</th></tr></thead>
+                        <thead><tr><th>العنوان</th><th>الفصل</th><th>الرابط</th><th>تحكم</th></tr></thead>
                         <tbody id="lecBody"></tbody>
                     </table>
                 </div>
@@ -185,7 +185,12 @@
             }
 
             const { data: lc } = await sb.from('lectures').select('*');
-            if (lc) document.getElementById('lecBody').innerHTML = lc.map(l => `<tr><td>${l.title}</td><td>${l.chapter_name}</td><td>${l.youtube_url}</td></tr>`).join('');
+            if (lc) {
+                document.getElementById('lecBody').innerHTML = lc.map(l => 
+                    `<tr><td>${l.title}</td><td>${l.chapter_name}</td><td>${l.youtube_url}</td>
+                    <td><button class="btn btn-delete" onclick="deleteLecture('${l.id}')">🗑️</button></td></tr>`
+                ).join('');
+            }
 
             const { data: gr } = await sb.from('grades').select('*');
             if (gr) document.getElementById('gBody').innerHTML = gr.map(g => `<tr><td>${g.student_name}</td><td>${g.subject_name}</td><td>${g.score}</td></tr>`).join('');
@@ -198,8 +203,17 @@
 
         async function addLecture() {
             const title = document.getElementById('lecT').value;
-            await sb.from('lectures').insert([{ title, chapter_name: document.getElementById('lecC').value, youtube_url: document.getElementById('lecU').value }]);
+            const chapter = document.getElementById('lecC').value;
+            const url = document.getElementById('lecU').value;
+            if(!title || !chapter || !url) return alert("يرجى ملء جميع الحقول");
+            await sb.from('lectures').insert([{ title, chapter_name: chapter, youtube_url: url }]);
             alert('تم الإضافة!'); loadData();
+        }
+
+        async function deleteLecture(id) {
+            if(!confirm('هل أنت متأكد من حذف هذه المحاضرة؟')) return;
+            await sb.from('lectures').delete().eq('id', id);
+            alert('تم الحذف!'); loadData();
         }
 
         async function addGrade() {
@@ -208,7 +222,12 @@
             alert('تم الحفظ!'); loadData();
         }
 
-        function logout() { sb.auth.signOut(); window.location.href = 'index.html'; }
+        // تم التعديل هنا ليوجه المستخدم إلى dashboard.html عند تسجيل الخروج
+        function logout() { 
+            sb.auth.signOut(); 
+            window.location.href = 'dashbord.html'; 
+        }
+
         loadData();
     </script>
 </body>
