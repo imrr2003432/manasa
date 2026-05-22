@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المحاضرات الرقمية - الفصول الدراسية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            padding: 30px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .header {
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* تصميم قسم الفصل */
+        .chapter-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .chapter-header {
+            padding: 18px 24px;
+            background-color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .chapter-header:hover {
+            background-color: #f8fafc;
+        }
+
+        .chapter-header.active {
+            border-bottom-color: var(--border-color);
+            background-color: #f1f5f9;
+        }
+
+        .chapter-icon {
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+
+        .chapter-header.active .chapter-icon {
+            transform: rotate(180deg);
+        }
+
+        .lectures-list {
+            display: none;
+            padding: 8px 0;
+            background-color: #ffffff;
+        }
+
+        .lecture-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .lecture-item:last-child {
+            border-bottom: none;
+        }
+
+        .lecture-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .lecture-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-icon {
+            color: var(--accent-blue);
+            width: 24px;
+            height: 24px;
+        }
+
+        .lecture-title {
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        /* مشغل الفيديو الاحترافي العائم */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .video-player-container {
+            background-color: #000000;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* الحفاظ على أبعاد الفيديو 16:9 */
+        .video-ratio {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+        }
+
+        .video-ratio iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .close-video {
+            position: absolute;
+            top: -45px;
+            left: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .loading-text, .empty-text {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="dashbord.html" class="back-link">⚡ العودة للرئيسية</a>
+
+        <header class="header">
+            <h1>المحاضرات والفصول المتاحة</h1>
+            <p>اختر الفصل الدراسي واضغط على المحاضرة لبدء الشرح مباشرة داخل المنصة</p>
+        </header>
+
+        <div id="loadingText" class="loading-text">جاري تحميل الفصول والدروس...</div>
+        <div id="emptyText" class="empty-text" style="display: none;">لا توجد محاضرات مرفوعة حالياً.</div>
+
+        <div id="chaptersWrapper"></div>
+    </div>
+
+    <div id="videoModal" class="video-modal" onclick="closePlayer()">
+        <div class="video-player-container" onclick="event.stopPropagation()">
+            <button class="close-video" onclick="closePlayer()">✕ إغلاق المشغل</button>
+            <div class="video-ratio">
+                <iframe id="videoIframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://fhtmlqihsuaqcedoqvxr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZodG1scWloc3VhcWNlZG9xdnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MTQ5OTAsImV4cCI6MjA5NDk5MDk5MH0.QUPq40-sS4uykQC16bchAAU8k2V1O_AGNVZ7zCxGlx4';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', fetchLectures);
+
+        async function fetchLectures() {
+            try {
+                const { data: lectures, error } = await supabaseClient
+                    .from('lectures')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+
+                document.getElementById('loadingText').style.display = 'none';
+
+                if (!lectures || lectures.length === 0) {
+                    document.getElementById('emptyText').style.display = 'block';
+                    return;
+                }
+
+                // تجميع المحاضرات حسب اسم الفصل
+                const grouped = {};
+                lectures.forEach(lec => {
+                    if (!grouped[lec.chapter_name]) {
+                        grouped[lec.chapter_name] = [];
+                    }
+                    grouped[lec.chapter_name].push(lec);
+                });
+
+                const wrapper = document.getElementById('chaptersWrapper');
+                wrapper.innerHTML = '';
+
+                // بناء كود HTML لكل فصل ومحاضراته
+                Object.keys(grouped).forEach(chapterName => {
+                    let lecturesHTML = '';
+                    grouped[chapterName].forEach(lec => {
+                        lecturesHTML += `
+                            <div class="lecture-item" onclick="playVideo('${lec.youtube_url}')">
+                                <div class="lecture-info">
+                                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M8 5v14l11-7z"/></svg>
+                                    <span class="lecture-title">${lec.title}</span>
+                                </div>
+                                <span style="color: var(--text-muted); font-size: 13px;">درس مرئي 📹</span>
+                            </div>
+                        `;
+                    });
+
+                    const chapterHTML = `
+                        <div class="chapter-container">
+                            <div class="chapter-header" onclick="toggleChapter(this)">
+                                <span>📂 ${chapterName}</span>
+                                <span class="chapter-icon">▼</span>
+                            </div>
+                            <div class="lectures-list">
+                                ${lecturesHTML}
+                            </div>
+                        </div>
+                    `;
+                    wrapper.insertAdjacentHTML('beforeend', chapterHTML);
+                });
+
+            } catch (err) {
+                document.getElementById('loadingText').textContent = 'خطأ في جلب البيانات: ' + err.message;
+            }
+        }
+
+        function toggleChapter(headerEl) {
+            headerEl.classList.toggle('active');
+            const listEl = headerEl.nextElementSibling;
+            if (listEl.style.display === 'block') {
+                listEl.style.display = 'none';
+            } else {
+                listEl.style.display = 'block';
+            }
+        }
+
+        // تحويل روابط اليوتيوب العادية والمشاركة إلى روابط Embed صالحة للـ iframe
+        function getEmbedUrl(url) {
+            let videoId = '';
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            if (match && match[2].length === 11) {
+                videoId = match[2];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
+        }
+
+        function playVideo(url) {
+            const embedUrl = getEmbedUrl(url);
+            if (embedUrl) {
+                document.getElementById('videoIframe').src = embedUrl;
+                document.getElementById('videoModal').style.display = 'flex';
+            } else {
+                alert('عذراً، رابط الفيديو غير صالح.');
+            }
+        }
+
+        function closePlayer() {
+            document.getElementById('videoModal').style.display = 'none';
+            document.getElementById('videoIframe').src = ''; // إيقاف تشغيل الفيديو عند الإغلاق
+        }
+    </script>
+</body>
+
+</html>

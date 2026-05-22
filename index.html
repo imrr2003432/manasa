@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>تسجيل الدخول</title>
+    <!-- استدعاء مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* خطوط وتصميم iOS */
+        :root {
+            --ios-blue: #007AFF;
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --ios-text: #000000;
+            --ios-gray: #8E8E93;
+            --ios-input-bg: #E5E5EA;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--ios-text);
+        }
+
+        .container {
+            background-color: var(--ios-card);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+            text-align: right;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--ios-input-bg);
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            background-color: #D1D1D6;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--ios-blue);
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        .links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .links a {
+            color: var(--ios-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #FF3B30;
+            /* لون الخطأ في iOS */
+        }
+
+        .success {
+            color: #34C759 !important;
+            /* لون النجاح في iOS */
+        }
+
+        /* إخفاء الصفحات غير النشطة */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container" id="authBox">
+        <h1 id="title">تسجيل الدخول</h1>
+
+        <div class="input-group">
+            <input type="email" id="email" placeholder="البريد الإلكتروني" required>
+        </div>
+
+        <div class="input-group" id="passwordGroup">
+            <input type="password" id="password" placeholder="كلمة المرور" required>
+        </div>
+
+        <button id="mainBtn" onclick="handleAuth()">دخول</button>
+
+        <div id="message"></div>
+
+        <div class="links">
+            <a id="toggleModeBtn" onclick="toggleMode()">إنشاء حساب جديد</a>
+            <a id="forgotBtn" onclick="toggleForgotPassword()">نسيت كلمة المرور؟</a>
+        </div>
+    </div>
+
+    <script>
+        // === بيانات مشروعك من Supabase ===
+        const SUPABASE_URL = 'https://fhtmlqihsuaqcedoqvxr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZodG1scWloc3VhcWNlZG9xdnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MTQ5OTAsImV4cCI6MjA5NDk5MDk5MH0.QUPq40-sS4uykQC16bchAAU8k2V1O_AGNVZ7zCxGlx4';
+
+        // قمنا بتغيير اسم المتغير إلى supabaseClient لتجنب التعارض
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentMode = 'login'; // 'login', 'signup', 'forgot'
+
+        const titleEl = document.getElementById('title');
+        const emailEl = document.getElementById('email');
+        const passwordEl = document.getElementById('password');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const mainBtn = document.getElementById('mainBtn');
+        const toggleModeBtn = document.getElementById('toggleModeBtn');
+        const forgotBtn = document.getElementById('forgotBtn');
+        const messageEl = document.getElementById('message');
+
+        function showMessage(msg, isSuccess = false) {
+            messageEl.textContent = msg;
+            if (isSuccess) messageEl.classList.add('success');
+            else messageEl.classList.remove('success');
+        }
+
+        function toggleMode() {
+            if (currentMode === 'login' || currentMode === 'forgot') {
+                currentMode = 'signup';
+                titleEl.textContent = 'إنشاء حساب';
+                mainBtn.textContent = 'تسجيل';
+                toggleModeBtn.textContent = 'لدي حساب بالفعل؟ دخول';
+                passwordGroup.classList.remove('hidden');
+                forgotBtn.classList.add('hidden');
+            } else {
+                currentMode = 'login';
+                titleEl.textContent = 'تسجيل الدخول';
+                mainBtn.textContent = 'دخول';
+                toggleModeBtn.textContent = 'إنشاء حساب جديد';
+                passwordGroup.classList.remove('hidden');
+                forgotBtn.classList.remove('hidden');
+            }
+            showMessage('');
+        }
+
+        function toggleForgotPassword() {
+            currentMode = 'forgot';
+            titleEl.textContent = 'استعادة كلمة المرور';
+            mainBtn.textContent = 'إرسال رابط الاستعادة';
+            passwordGroup.classList.add('hidden');
+            toggleModeBtn.textContent = 'العودة لتسجيل الدخول';
+            forgotBtn.classList.add('hidden');
+            showMessage('');
+        }
+
+        async function handleAuth() {
+            const email = emailEl.value.trim();
+            const password = passwordEl.value;
+
+            if (!email) return showMessage('يرجى إدخال البريد الإلكتروني.');
+
+            mainBtn.disabled = true;
+            mainBtn.textContent = 'جاري التحميل...';
+
+            try {
+                if (currentMode === 'signup') {
+                    if (!password || password.length < 6) {
+                        throw new Error('كلمة المرور يجب أن تكون 6 أحرف على الأقل.');
+                    }
+                    const { data, error } = await supabaseClient.auth.signUp({
+                        email: email,
+                        password: password,
+                    });
+                    if (error) throw error;
+                    showMessage('تم إنشاء الحساب بنجاح! يرجى التحقق من إيميلك لتفعيل الحساب.', true);
+
+                } else if (currentMode === 'login') {
+                    if (!password) throw new Error('يرجى إدخال كلمة المرور.');
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password,
+                    });
+                    if (error) throw error;
+
+                    // هنا قمنا بإضافة التوجيه بنجاح
+                    showMessage('تم تسجيل الدخول بنجاح! جاري التوجيه...', true);
+                    // التأكد من أن المستخدم "آدمن" قبل عرض الصفحة
+                    async function checkAdmin() {
+                        const { data: { session } } = await sb.auth.getSession();
+
+                        if (!session) {
+                            window.location.href = 'index.html'; // إذا لم يكن مسجلاً، ارجعه لصفحة الدخول
+                            return;
+                        }
+
+                        // التحقق من الرتبة في جدول الـ profiles
+                        const { data: profile } = await sb
+                            .from('profiles')
+                            .select('role')
+                            .eq('email', session.user.email)
+                            .single();
+
+                        if (!profile || profile.role !== 'admin') {
+                            alert("ليس لديك صلاحية الدخول!");
+                            window.location.href = 'index.html'; // طرده إذا لم يكن آدمن
+                        }
+                    }
+
+                    // استدعاء التحقق فوراً
+                    checkAdmin();
+
+
+
+                    setTimeout(() => {
+                        // تأكد أن اسم الصفحة هنا يطابق اسم الصفحة التي تريد التحويل إليها
+                        window.location.href = "dashbord.html";
+                    }, 1000);
+
+                } else if (currentMode === 'forgot') {
+                    const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                        redirectTo: window.location.origin + '/reset-password.html',
+                    });
+                    if (error) throw error;
+                    showMessage('تم إرسال رابط استعادة كلمة المرور إلى بريدك.', true);
+                }
+            } catch (err) {
+                showMessage(err.message || 'حدث خطأ ما.');
+            } finally {
+                mainBtn.disabled = false;
+                if (currentMode === 'login') mainBtn.textContent = 'دخول';
+                else if (currentMode === 'signup') mainBtn.textContent = 'تسجيل';
+                else mainBtn.textContent = 'إرسال رابط الاستعادة';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

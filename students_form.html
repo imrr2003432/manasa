@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>استمارة بيانات الطلاب</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* خطوط وتصميم iOS */
+        :root {
+            --ios-blue: #007AFF;
+            --ios-bg: #F2F2F7;
+            --ios-card: #FFFFFF;
+            --ios-text: #000000;
+            --ios-gray: #8E8E93;
+            --ios-input-bg: #E5E5EA;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--ios-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--ios-text);
+        }
+
+        .container {
+            background-color: var(--ios-card);
+            width: 100%;
+            max-width: 450px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        p.subtitle {
+            color: var(--ios-gray);
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: right;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #3a3a3c;
+            padding-right: 4px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--ios-input-bg);
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+            
+            /* إزالة مظهر المتصفح الافتراضي للتوافقية الكاملة */
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input:focus, select:focus {
+            background-color: #D1D1D6;
+        }
+
+        input[type="date"] {
+            font-family: inherit;
+            text-align: right;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background-color: var(--ios-blue);
+            color: white;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:active {
+            opacity: 0.8;
+        }
+
+        #message {
+            margin-top: 15px;
+            font-size: 14px;
+            text-align: center;
+            color: #FF3B30;
+        }
+
+        .success {
+            color: #34C759 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>استمارة تسجيل الطلاب</h1>
+        <p class="subtitle">يرجى إدخال البيانات المطلوبة بدقة</p>
+
+        <form id="studentForm" onsubmit="submitData(event)">
+            
+            <div class="input-group">
+                <label for="fullName">الاسم الثلاثي للطالب</label>
+                <input type="text" id="fullName" placeholder="أدخل اسمك الثلاثي" required>
+            </div>
+
+            <div class="input-group">
+                <label for="dob">تاريخ الميلاد</label>
+                <input type="date" id="dob" required>
+            </div>
+
+            <div class="input-group">
+                <label for="governorate">المحافظة</label>
+                <select id="governorate" required>
+                    <option value="" disabled selected>اختر المحافظة</option>
+                    <option value="بغداد">بغداد</option>
+                    <option value="الأنبار">الأنبار</option>
+                    <option value="نينوى">نينوى</option>
+                    <option value="البصرة">البصرة</option>
+                    <option value="أربيل">أربيل</option>
+                    <option value="بابل">بابل</option>
+                    <option value="النجف">النجف</option>
+                    <option value="كربلاء">كربلاء</option>
+                    <option value="ذي قار">ذي قار</option>
+                    <option value="كركوك">كركوك</option>
+                    <option value="صلاح الدين">صلاح الدين</option>
+                    <option value="ديالى">ديالى</option>
+                    <option value="ميسان">ميسان</option>
+                    <option value="واسط">واسط</option>
+                    <option value="المثنى">المثنى</option>
+                    <option value="القادسية">القادسية</option>
+                    <option value="السليمانية">السليمانية</option>
+                    <option value="دهوك">دهوك</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="schoolName">اسم المدرسة</label>
+                <input type="text" id="schoolName" placeholder="أدخل اسم مدرستك الحالية" required>
+            </div>
+
+            <button type="submit" id="submitBtn">رفع البيانات</button>
+
+            <div id="message"></div>
+        </form>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://fhtmlqihsuaqcedoqvxr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZodG1scWloc3VhcWNlZG9xdnhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk0MTQ5OTAsImV4cCI6MjA5NDk5MDk5MH0.QUPq40-sS4uykQC16bchAAU8k2V1O_AGNVZ7zCxGlx4';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const formEl = document.getElementById('studentForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageEl = document.getElementById('message');
+
+        function showMessage(msg, isSuccess = false) {
+            messageEl.textContent = msg;
+            if (isSuccess) messageEl.classList.add('success');
+            else messageEl.classList.remove('success');
+        }
+
+        async function submitData(event) {
+            event.preventDefault();
+
+            const fullName = document.getElementById('fullName').value.trim();
+            const dob = document.getElementById('dob').value;
+            const governorate = document.getElementById('governorate').value;
+            const schoolName = document.getElementById('schoolName').value.trim();
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'جاري رفع البيانات...';
+            showMessage('');
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('students')
+                    .insert([
+                        { 
+                            full_name: fullName, 
+                            date_of_birth: dob, 
+                            governorate: governorate, 
+                            school_name: schoolName 
+                        }
+                    ]);
+
+                if (error) throw error;
+
+                // إظهار رسالة النجاح والتوجيه
+                showMessage('تم رفع بياناتك بنجاح! جاري تحويلك...', true);
+                formEl.reset();
+
+                // دالة التوجيه التلقائي بعد ثانية ونصف
+                setTimeout(() => {
+                    // ⚠️ استبدل success.html باسم الصفحة التي تريد تحويل الطالب إليها
+                    window.location.href = "dashbord.html"; 
+                }, 1500);
+
+            } catch (err) {
+                showMessage(err.message || 'حدث خطأ أثناء رفع البيانات، يرجى المحاولة مرة أخرى.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'رفع البيانات';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
