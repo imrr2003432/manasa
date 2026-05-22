@@ -14,220 +14,71 @@
             --accent-blue: #3b82f6;
             --card-bg: #ffffff;
             --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
 
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            padding: 30px 20px;
-        }
+        body { background-color: var(--bg-primary); color: var(--text-main); padding: 40px 20px; line-height: 1.6; }
 
-        .container {
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .container { max-width: 800px; margin: 0 auto; }
 
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            color: var(--accent-blue);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: var(--accent-blue); text-decoration: none; font-weight: 600; margin-bottom: 30px; padding: 8px 16px; background: white; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
 
-        .header {
-            margin-bottom: 32px;
-        }
+        .header { margin-bottom: 40px; }
+        .header h1 { font-size: 32px; font-weight: 800; margin-bottom: 10px; color: #0f172a; }
+        .header p { color: var(--text-muted); font-size: 16px; }
 
-        .header h1 {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
+        /* تصميم الكاردات للفصول */
+        .chapter-container { background: var(--card-bg); border-radius: 20px; margin-bottom: 20px; border: 1px solid var(--border-color); box-shadow: var(--shadow-md); overflow: hidden; transition: 0.3s; }
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 14px;
-        }
+        .chapter-header { padding: 24px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .chapter-header:hover { background-color: #fcfcfc; }
+        .chapter-header.active { background-color: #f8fafc; border-bottom: 1px solid var(--border-color); }
 
-        /* تصميم قسم الفصل */
-        .chapter-container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 14px;
-            margin-bottom: 16px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-        }
+        .chapter-icon { color: var(--text-muted); transition: transform 0.3s; }
+        .chapter-header.active .chapter-icon { transform: rotate(180deg); color: var(--accent-blue); }
 
-        .chapter-header {
-            padding: 18px 24px;
-            background-color: #ffffff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-            border-bottom: 1px solid transparent;
-            transition: all 0.2s;
-        }
+        .lectures-list { display: none; padding: 10px 20px; background-color: #ffffff; }
 
-        .chapter-header:hover {
-            background-color: #f8fafc;
-        }
+        .lecture-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; margin: 8px 0; border-radius: 12px; cursor: pointer; border: 1px solid #f1f5f9; background: #fdfdfd; transition: 0.2s; }
+        .lecture-item:hover { background-color: #eff6ff; border-color: #dbeafe; transform: translateX(-5px); }
 
-        .chapter-header.active {
-            border-bottom-color: var(--border-color);
-            background-color: #f1f5f9;
-        }
+        .lecture-info { display: flex; align-items: center; gap: 15px; }
+        .play-icon { background: #dbeafe; color: var(--accent-blue); padding: 8px; border-radius: 10px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; }
 
-        .chapter-icon {
-            font-size: 14px;
-            transition: transform 0.2s;
-        }
+        .lecture-title { font-weight: 600; }
+        .badge { font-size: 12px; color: var(--text-muted); background: #f1f5f9; padding: 4px 10px; border-radius: 6px; }
 
-        .chapter-header.active .chapter-icon {
-            transform: rotate(180deg);
-        }
-
-        .lectures-list {
-            display: none;
-            padding: 8px 0;
-            background-color: #ffffff;
-        }
-
-        .lecture-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 24px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .lecture-item:last-child {
-            border-bottom: none;
-        }
-
-        .lecture-item:hover {
-            background-color: #f8fafc;
-        }
-
-        .lecture-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .play-icon {
-            color: var(--accent-blue);
-            width: 24px;
-            height: 24px;
-        }
-
-        .lecture-title {
-            font-size: 15px;
-            font-weight: 500;
-        }
-
-        /* مشغل الفيديو الاحترافي العائم */
-        .video-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(4px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .video-player-container {
-            background-color: #000000;
-            width: 100%;
-            max-width: 800px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
-        }
-
-        /* الحفاظ على أبعاد الفيديو 16:9 */
-        .video-ratio {
-            position: relative;
-            padding-bottom: 56.25%;
-            height: 0;
-        }
-
-        .video-ratio iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-
-        .close-video {
-            position: absolute;
-            top: -45px;
-            left: 0;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .loading-text, .empty-text {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-        }
+        /* المشغل */
+        .video-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .video-player-container { background: #000; width: 100%; max-width: 850px; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 25px rgba(0,0,0,0.3); position: relative; }
+        .video-ratio { position: relative; padding-bottom: 56.25%; height: 0; }
+        .video-ratio iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .close-video { position: absolute; top: -50px; right: 0; color: white; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 
 <body>
 
     <div class="container">
-        <a href="dashbord.html" class="back-link">⚡ العودة للرئيسية</a>
+        <a href="dashbord.html" class="back-link">← العودة للرئيسية</a>
 
         <header class="header">
-            <h1>المحاضرات والفصول المتاحة</h1>
-            <p>اختر الفصل الدراسي واضغط على المحاضرة لبدء الشرح مباشرة داخل المنصة</p>
+            <h1>المكتبة التعليمية</h1>
+            <p>استعرض المحاضرات منظمة حسب الفصول الدراسية</p>
         </header>
 
-        <div id="loadingText" class="loading-text">جاري تحميل الفصول والدروس...</div>
-        <div id="emptyText" class="empty-text" style="display: none;">لا توجد محاضرات مرفوعة حالياً.</div>
+        <div id="loadingText" style="text-align:center; padding:20px;">جاري تحميل المحاضرات...</div>
+        <div id="emptyText" style="display: none; text-align:center;">لا توجد محاضرات حالياً.</div>
 
         <div id="chaptersWrapper"></div>
     </div>
 
     <div id="videoModal" class="video-modal" onclick="closePlayer()">
         <div class="video-player-container" onclick="event.stopPropagation()">
-            <button class="close-video" onclick="closePlayer()">✕ إغلاق المشغل</button>
+            <span class="close-video" onclick="closePlayer()">✕ إغلاق</span>
             <div class="video-ratio">
                 <iframe id="videoIframe" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
@@ -244,12 +95,9 @@
         async function fetchLectures() {
             try {
                 const { data: lectures, error } = await supabaseClient
-                    .from('lectures')
-                    .select('*')
-                    .order('created_at', { ascending: true });
+                    .from('lectures').select('*').order('created_at', { ascending: true });
 
                 if (error) throw error;
-
                 document.getElementById('loadingText').style.display = 'none';
 
                 if (!lectures || lectures.length === 0) {
@@ -257,88 +105,56 @@
                     return;
                 }
 
-                // تجميع المحاضرات حسب اسم الفصل
                 const grouped = {};
                 lectures.forEach(lec => {
-                    if (!grouped[lec.chapter_name]) {
-                        grouped[lec.chapter_name] = [];
-                    }
+                    if (!grouped[lec.chapter_name]) grouped[lec.chapter_name] = [];
                     grouped[lec.chapter_name].push(lec);
                 });
 
                 const wrapper = document.getElementById('chaptersWrapper');
-                wrapper.innerHTML = '';
-
-                // بناء كود HTML لكل فصل ومحاضراته
                 Object.keys(grouped).forEach(chapterName => {
-                    let lecturesHTML = '';
-                    grouped[chapterName].forEach(lec => {
-                        lecturesHTML += `
-                            <div class="lecture-item" onclick="playVideo('${lec.youtube_url}')">
-                                <div class="lecture-info">
-                                    <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M8 5v14l11-7z"/></svg>
-                                    <span class="lecture-title">${lec.title}</span>
-                                </div>
-                                <span style="color: var(--text-muted); font-size: 13px;">درس مرئي 📹</span>
+                    let lecturesHTML = grouped[chapterName].map(lec => `
+                        <div class="lecture-item" onclick="playVideo('${lec.youtube_url}')">
+                            <div class="lecture-info">
+                                <div class="play-icon">▶</div>
+                                <span class="lecture-title">${lec.title}</span>
                             </div>
-                        `;
-                    });
+                            <span class="badge">درس مرئي</span>
+                        </div>
+                    `).join('');
 
-                    const chapterHTML = `
+                    wrapper.insertAdjacentHTML('beforeend', `
                         <div class="chapter-container">
                             <div class="chapter-header" onclick="toggleChapter(this)">
                                 <span>📂 ${chapterName}</span>
                                 <span class="chapter-icon">▼</span>
                             </div>
-                            <div class="lectures-list">
-                                ${lecturesHTML}
-                            </div>
+                            <div class="lectures-list">${lecturesHTML}</div>
                         </div>
-                    `;
-                    wrapper.insertAdjacentHTML('beforeend', chapterHTML);
+                    `);
                 });
-
             } catch (err) {
-                document.getElementById('loadingText').textContent = 'خطأ في جلب البيانات: ' + err.message;
+                document.getElementById('loadingText').textContent = 'خطأ: ' + err.message;
             }
         }
 
-        function toggleChapter(headerEl) {
-            headerEl.classList.toggle('active');
-            const listEl = headerEl.nextElementSibling;
-            if (listEl.style.display === 'block') {
-                listEl.style.display = 'none';
-            } else {
-                listEl.style.display = 'block';
-            }
-        }
-
-        // تحويل روابط اليوتيوب العادية والمشاركة إلى روابط Embed صالحة للـ iframe
-        function getEmbedUrl(url) {
-            let videoId = '';
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            if (match && match[2].length === 11) {
-                videoId = match[2];
-            }
-            return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0` : '';
+        function toggleChapter(el) {
+            el.classList.toggle('active');
+            el.nextElementSibling.style.display = el.classList.contains('active') ? 'block' : 'none';
         }
 
         function playVideo(url) {
-            const embedUrl = getEmbedUrl(url);
-            if (embedUrl) {
-                document.getElementById('videoIframe').src = embedUrl;
+            let videoId = url.match(/(?:youtu\.be\/|youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=))([^"&?\/\s]{11})/)?.[1];
+            if (videoId) {
+                document.getElementById('videoIframe').src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
                 document.getElementById('videoModal').style.display = 'flex';
-            } else {
-                alert('عذراً، رابط الفيديو غير صالح.');
             }
         }
 
         function closePlayer() {
             document.getElementById('videoModal').style.display = 'none';
-            document.getElementById('videoIframe').src = ''; // إيقاف تشغيل الفيديو عند الإغلاق
+            document.getElementById('videoIframe').src = '';
         }
     </script>
 </body>
-
 </html>
