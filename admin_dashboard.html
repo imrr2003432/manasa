@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,226 +8,134 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary: #007aff;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --sidebar: #0f172a;
-            --text-main: #1e293b;
-            --text-secondary: #64748b;
-            --border-radius: 20px;
+            --primary-gradient: linear-gradient(135deg, #6366f1, #a855f7);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6, #06b6d4);
+            --accent-gradient: linear-gradient(135deg, #f43f5e, #fb923c);
+            --bg: #f0f4f8;
+            --white: #ffffff;
         }
 
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            margin: 0;
-            display: flex;
-            color: var(--text-main);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 260px;
-            height: 100vh;
-            background: var(--sidebar);
-            position: fixed;
-            top: 0;
-            right: 0;
-            padding: 30px 20px;
-            z-index: 1000;
-        }
-
-        .sidebar h2 { color: #ffffff; margin-bottom: 40px; font-weight: 800; }
-
-        .nav-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-radius: 12px;
-            margin-bottom: 8px;
-            transition: 0.3s;
-            font-weight: 600;
-            color: #94a3b8;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: #1e293b;
-            color: #ffffff;
-        }
-
-        .main { margin-right: 260px; padding: 40px; width: calc(100% - 260px); }
-
-        .card {
-            background: var(--card-bg);
-            padding: 25px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-
-        table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 20px; }
-        th { color: var(--text-secondary); font-weight: 600; padding: 15px; text-align: right; border-bottom: 2px solid #f1f5f9; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #334155; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .grid { display: grid; gap: 20px; }
         
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
+        .card { 
+            background: var(--white); padding: 20px; border-radius: 25px; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.08); 
+            cursor: pointer; transition: transform 0.3s;
+            display: flex; align-items: center; gap: 20px;
         }
-        .btn-delete { background: #ef4444; padding: 8px 12px; font-size: 12px; }
-        .btn:active { transform: scale(0.96); }
-        .btn-excel { background: #10b981; margin-bottom: 15px; width: 100%; }
-
-        input, select {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            background: #f8fafc;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 100%; height: 70px; bottom: 0; top: auto; display: flex; align-items: center; justify-content: space-around; padding: 10px; }
-            .sidebar h2 { display: none; }
-            .nav-item { margin-bottom: 0; font-size: 11px; padding: 8px; text-align: center; }
-            .main { margin-right: 0; width: 100%; padding: 20px; padding-bottom: 100px; }
-            .input-group { flex-direction: column; }
-        }
+        .card:hover { transform: translateY(-5px); }
+        .icon { width: 55px; height: 55px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: white; }
+        
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); z-index: 1000; align-items: flex-end; }
+        .modal-content { background: white; width: 100%; border-radius: 30px 30px 0 0; padding: 25px; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .btn-action { width: 100%; padding: 14px; border: none; border-radius: 15px; background: var(--primary-gradient); color: white; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-close { background: #64748b; margin-top: 15px; }
+        input, select { width: 100%; padding: 14px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 10px; box-sizing: border-box; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th { color: #94a3b8; text-align: right; padding: 10px; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; }
     </style>
 </head>
-
 <body>
 
-    <aside class="sidebar">
-        <h2>الإدارة</h2>
-        <div class="nav-item active" onclick="showSection('students', this)">👨‍🎓 الطلاب</div>
-        <div class="nav-item" onclick="showSection('lectures', this)">📹 المحاضرات</div>
-        <div class="nav-item" onclick="showSection('grades', this)">📊 الدرجات</div>
-        <div class="nav-item" onclick="logout()" style="color: #ef4444;">🚪 خروج</div>
-    </aside>
+<div class="container">
+    <div class="header"><h1>لوحة الإدارة</h1></div>
+    
+    <div class="grid">
+        <div class="card" onclick="openModal('studentsModal')" style="border-right: 6px solid #6366f1;">
+            <div class="icon" style="background: var(--primary-gradient);">👨‍🎓</div>
+            <div><h2 style="margin:0;">الطلاب</h2><p style="color:#64748b; margin:0;">بيانات المسجلين</p></div>
+        </div>
+        
+        <div class="card" onclick="openModal('lecturesModal')" style="border-right: 6px solid #3b82f6;">
+            <div class="icon" style="background: var(--secondary-gradient);">📹</div>
+            <div><h2 style="margin:0;">المحاضرات</h2><p style="color:#64748b; margin:0;">إدارة الحصص</p></div>
+        </div>
 
-    <main class="main">
-        <section id="students" class="content-section">
-            <div class="card">
-                <h1 style="font-size: 24px; margin-bottom: 20px;">بيانات الطلاب</h1>
-                <button class="btn btn-excel" onclick="exportTableToExcel('stTable', 'الطلاب')">📥 تصدير البيانات إلى Excel</button>
-                <div style="overflow-x: auto;">
-                    <table id="stTable">
-                        <thead id="stHead"></thead>
-                        <tbody id="stBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+        <div class="card" onclick="openModal('gradesModal')" style="border-right: 6px solid #f43f5e;">
+            <div class="icon" style="background: var(--accent-gradient);">📊</div>
+            <div><h2 style="margin:0;">الدرجات</h2><p style="color:#64748b; margin:0;">رصد النتائج</p></div>
+        </div>
+    </div>
+</div>
 
-        <section id="lectures" class="content-section" style="display:none;">
-            <div class="card">
-                <h1>إدارة المحاضرات</h1>
-                <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="lecT" placeholder="العنوان" style="flex: 1;">
-                    <input type="text" id="lecC" placeholder="الفصل" style="flex: 1;">
-                    <input type="url" id="lecU" placeholder="رابط الفيديو" style="flex: 1;">
-                    <button class="btn" onclick="addLecture()">إضافة</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table id="lecTable">
-                        <thead><tr><th>العنوان</th><th>الفصل</th><th>الرابط</th><th>تحكم</th></tr></thead>
-                        <tbody id="lecBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
+<div id="studentsModal" class="modal"><div class="modal-content">
+    <h2>الطلاب</h2>
+    <button class="btn-action" onclick="exportTableToExcel('stTable', 'الطلاب')">📥 تصدير Excel</button>
+    <table id="stTable"><thead><tr id="stHead"></tr></thead><tbody id="stBody"></tbody></table>
+    <button class="btn-action btn-close" onclick="closeModals()">إغلاق</button>
+</div></div>
 
-        <section id="grades" class="content-section" style="display:none;">
-            <div class="card">
-                <h1>رفع الدرجات</h1>
-                <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <select id="sSelect" style="flex: 1;"></select>
-                    <input type="text" id="subName" placeholder="المادة">
-                    <input type="number" id="sScore" placeholder="الدرجة">
-                    <button class="btn" onclick="addGrade()">حفظ</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table id="gTable">
-                        <thead><tr><th>الطالب</th><th>المادة</th><th>الدرجة</th></tr></thead>
-                        <tbody id="gBody"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
+<div id="lecturesModal" class="modal"><div class="modal-content">
+    <h2>إدارة المحاضرات</h2>
+    <input type="text" id="lecT" placeholder="العنوان">
+    <input type="text" id="lecC" placeholder="الفصل">
+    <input type="url" id="lecU" placeholder="رابط الفيديو">
+    <button class="btn-action" onclick="addLecture()">إضافة</button>
+    <table id="lecTable"><thead><tr><th>العنوان</th><th>تحكم</th></tr></thead><tbody id="lecBody"></tbody></table>
+    <button class="btn-action btn-close" onclick="closeModals()">إغلاق</button>
+</div></div>
 
-    <script>
-        const sb = supabase.createClient('https://fhtmlqihsuaqcedoqvxr.supabase.co', 'sb_publishable_9wqupRTtM78NviSwAoJENw_1UalvspY');
+<div id="gradesModal" class="modal"><div class="modal-content">
+    <h2>الدرجات</h2>
+    <select id="sSelect"></select>
+    <input type="text" id="subName" placeholder="المادة">
+    <input type="number" id="sScore" placeholder="الدرجة">
+    <button class="btn-action" onclick="addGrade()">حفظ</button>
+    <table id="gTable"><thead><tr><th>الطالب</th><th>المادة</th><th>الدرجة</th></tr></thead><tbody id="gBody"></tbody></table>
+    <button class="btn-action btn-close" onclick="closeModals()">إغلاق</button>
+</div></div>
 
-        function showSection(id, el) {
-            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
+<script>
+    const sb = supabase.createClient('https://fhtmlqihsuaqcedoqvxr.supabase.co', 'sb_publishable_9wqupRTtM78NviSwAoJENw_1UalvspY');
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModals() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+    async function loadData() {
+        const { data: st } = await sb.from('students').select('*');
+        if (st && st.length > 0) {
+            const keys = Object.keys(st[0]);
+            document.getElementById('stHead').innerHTML = keys.map(k => `<th>${k}</th>`).join('');
+            document.getElementById('stBody').innerHTML = st.map(row => `<tr>${keys.map(k => `<td>${row[k]}</td>`).join('')}</tr>`).join('');
+            document.getElementById('sSelect').innerHTML = st.map(s => `<option value="${s.full_name}">${s.full_name}</option>`).join('');
         }
 
-        async function loadData() {
-            const { data: st } = await sb.from('students').select('*');
-            if (st && st.length > 0) {
-                const keys = Object.keys(st[0]);
-                document.getElementById('stHead').innerHTML = `<tr>${keys.map(k => `<th>${k}</th>`).join('')}</tr>`;
-                document.getElementById('stBody').innerHTML = st.map(row => 
-                    `<tr>${keys.map(k => `<td>${row[k] || '-'}</td>`).join('')}</tr>`
-                ).join('');
-                document.getElementById('sSelect').innerHTML = st.map(s => `<option value="${s.full_name}">${s.full_name}</option>`).join('');
-            }
+        const { data: lc } = await sb.from('lectures').select('*');
+        if (lc) document.getElementById('lecBody').innerHTML = lc.map(l => `<tr><td>${l.title}</td><td><button onclick="deleteLecture('${l.id}')" style="background:#ef4444; border:none; color:white; border-radius:5px; padding:5px;">🗑️</button></td></tr>`).join('');
 
-            const { data: lc } = await sb.from('lectures').select('*');
-            if (lc) {
-                document.getElementById('lecBody').innerHTML = lc.map(l => 
-                    `<tr><td>${l.title}</td><td>${l.chapter_name}</td><td>${l.youtube_url}</td>
-                    <td><button class="btn btn-delete" onclick="deleteLecture('${l.id}')">🗑️</button></td></tr>`
-                ).join('');
-            }
+        const { data: gr } = await sb.from('grades').select('*');
+        if (gr) document.getElementById('gBody').innerHTML = gr.map(g => `<tr><td>${g.student_name}</td><td>${g.subject_name}</td><td>${g.score}</td></tr>`).join('');
+    }
 
-            const { data: gr } = await sb.from('grades').select('*');
-            if (gr) document.getElementById('gBody').innerHTML = gr.map(g => `<tr><td>${g.student_name}</td><td>${g.subject_name}</td><td>${g.score}</td></tr>`).join('');
-        }
+    async function addLecture() {
+        const title = document.getElementById('lecT').value;
+        const chapter = document.getElementById('lecC').value;
+        const url = document.getElementById('lecU').value;
+        if(!title || !chapter || !url) return alert("يرجى ملء الحقول");
+        await sb.from('lectures').insert([{ title, chapter_name: chapter, youtube_url: url }]);
+        alert('تمت الإضافة'); loadData();
+    }
 
-        function exportTableToExcel(tableId, filename) {
-            const wb = XLSX.utils.table_to_book(document.getElementById(tableId), { sheet: "Sheet1" });
-            XLSX.writeFile(wb, filename + ".xlsx");
-        }
-
-        async function addLecture() {
-            const title = document.getElementById('lecT').value;
-            const chapter = document.getElementById('lecC').value;
-            const url = document.getElementById('lecU').value;
-            if(!title || !chapter || !url) return alert("يرجى ملء جميع الحقول");
-            await sb.from('lectures').insert([{ title, chapter_name: chapter, youtube_url: url }]);
-            alert('تم الإضافة!'); loadData();
-        }
-
-        async function deleteLecture(id) {
-            if(!confirm('هل أنت متأكد من حذف هذه المحاضرة؟')) return;
-            await sb.from('lectures').delete().eq('id', id);
-            alert('تم الحذف!'); loadData();
-        }
-
-        async function addGrade() {
-            const sSelect = document.getElementById('sSelect');
-            await sb.from('grades').insert([{ student_name: sSelect.value, subject_name: document.getElementById('subName').value, score: Number(document.getElementById('sScore').value) }]);
-            alert('تم الحفظ!'); loadData();
-        }
-
-        // تم التعديل هنا ليوجه المستخدم إلى dashboard.html عند تسجيل الخروج
-        function logout() { 
-            sb.auth.signOut(); 
-            window.location.href = 'dashbord.html'; 
-        }
-
+    async function deleteLecture(id) {
+        await sb.from('lectures').delete().eq('id', id);
         loadData();
-    </script>
+    }
+
+    async function addGrade() {
+        await sb.from('grades').insert([{ student_name: document.getElementById('sSelect').value, subject_name: document.getElementById('subName').value, score: Number(document.getElementById('sScore').value) }]);
+        alert('تم الحفظ'); loadData();
+    }
+
+    function exportTableToExcel(id, name) { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById(id)), name + ".xlsx"); }
+
+    loadData();
+</script>
 </body>
 </html>
