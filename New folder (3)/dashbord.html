@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنصة التعليمية المتقدمة - لوحة التحكم</title>
+    <!-- مكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --sidebar-bg: #0f172a;
+            --sidebar-hover: #1e293b;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --accent-green: #10b981;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background-color: var(--bg-primary); color: var(--text-main); display: flex; min-height: 100vh; }
+
+        /* الشريط الجانبي */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: #ffffff; padding: 24px; position: fixed; top: 0; bottom: 0; right: 0; z-index: 100; }
+        .sidebar-brand { font-size: 20px; font-weight: 700; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; color: #ffffff; text-decoration: none; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        .sidebar-item a { display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: #94a3b8; text-decoration: none; border-radius: 10px; transition: 0.2s; }
+        .sidebar-item a:hover { background-color: var(--sidebar-hover); color: #ffffff; }
+        .admin-btn { background-color: #c2410c !important; color: white !important; margin-top: 20px; }
+
+        /* المحتوى الرئيسي */
+        .main-content { margin-right: 260px; flex: 1; padding: 40px; max-width: 1200px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .hero-banner { background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border-radius: 20px; padding: 32px; color: #ffffff; margin-bottom: 40px; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; }
+        
+        .panel-card { background-color: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; text-decoration: none; color: var(--text-main); transition: 0.25s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .panel-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        .card-header-status { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .icon-wrapper { width: 48px; height: 48px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
+        .badge { font-size: 11px; padding: 4px 8px; border-radius: 20px; }
+        .badge-blue { background-color: #eff6ff; color: #1d4ed8; }
+        .badge-purple { background-color: #f5f3ff; color: #6d28d9; }
+        .badge-orange { background-color: #fff7ed; color: #c2410c; }
+        .badge-green { background-color: #ecfdf5; color: #047857; }
+        .bg-light-blue { background-color: #e0f2fe; color: var(--accent-blue); }
+        .bg-light-purple { background-color: #f3e8ff; color: var(--accent-purple); }
+        .bg-light-orange { background-color: #ffedd5; color: var(--accent-orange); }
+        .bg-light-green { background-color: #d1fae5; color: var(--accent-green); }
+    </style>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <a href="#" class="sidebar-brand"><span>🛡️ المنصة الذكية</span></a>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item"><a href="dashbord.html">الرئيسية</a></li>
+            <li class="sidebar-item"><a href="students_form.html">الاستمارات</a></li>
+            <li class="sidebar-item"><a href="lectures.html">المحاضرات</a></li>
+            <li class="sidebar-item" id="admin-menu-item" style="display: none;">
+                <a href="admin_dashboard.html" class="admin-btn">⚙️ لوحة تحكم الآدمن</a>
+            </li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="user-welcome">
+                <h1 id="greeting">مرحباً بك</h1>
+                <p id="currentDate"></p>
+            </div>
+        </header>
+
+        <section class="hero-banner">
+            <h2>مرحباً بك في فضائك التعليمي المتكامل</h2>
+            <p>من هنا يمكنك إدارة ملفك الدراسي، متابعة الحصص اليومية، وتقديم الاستمارات للادارة.</p>
+        </section>
+
+        <section class="dashboard-grid">
+            <a href="students_form.html" class="panel-card">
+                <div class="card-header-status"><div class="icon-wrapper bg-light-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg></div><span class="badge badge-blue">متاح الآن</span></div>
+                <h3>استمارة البيانات</h3><p>تحديث البيانات الشخصية وإرسالها لقاعدة البيانات.</p>
+            </a>
+            <a href="lectures.html" class="panel-card">
+                <div class="card-header-status"><div class="icon-wrapper bg-light-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6 17h12a2.5 2.5 0 0 1 2.5 2.5V4a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 4v15.5z"></path></svg></div><span class="badge badge-purple">تحديث مستمر</span></div>
+                <h3>المحاضرات الرقمية</h3><p>الوصول للمناهج والملازم والفيديوهات التعليمية.</p>
+            </a>
+            <a href="exams.html" class="panel-card">
+                <div class="card-header-status"><div class="icon-wrapper bg-light-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></div><span class="badge badge-orange">قريباً</span></div>
+                <h3>جدول الاختبارات</h3><p>استعراض مواعيد الامتحانات والواجبات الدورية.</p>
+            </a>
+            <a href="results.html" class="panel-card">
+                <div class="card-header-status"><div class="icon-wrapper bg-light-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div><span class="badge badge-green">جديد</span></div>
+                <h3>نتائج الامتحانات</h3><p>لوحة عرض الدرجات الشهرية والفصلية.</p>
+            </a>
+        </section>
+    </main>
+
+    <script>
+        const sb = supabase.createClient('https://fhtmlqihsuaqcedoqvxr.supabase.co', 'sb_publishable_9wqupRTtM78NviSwAoJENw_1UalvspY');
+
+        // كود التحقق من الآدمن
+        async function checkAdminAccess() {
+            const { data: { session } } = await sb.auth.getSession();
+            if (session) {
+                const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+                if (profile && profile.role === 'admin') {
+                    document.getElementById('admin-menu-item').style.display = 'block';
+                }
+            }
+        }
+        checkAdminAccess();
+
+        // التاريخ والترحيب
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('ar-IQ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('greeting').textContent = new Date().getHours() < 12 ? 'صباح الخير، طالبي العزيز 👋' : 'مساء الخير، طالبي العزيز 👋';
+    </script>
+</body>
+</html>
